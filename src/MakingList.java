@@ -259,5 +259,11 @@ interface Executable{
     void execute();
 }
 class ExecutableList<E extends Executable>{
-
+    E element;
+    ExecutableList<E> next;
+    void executeAll(){
+        element.execute();
+        if(next==null){return;}
+        else {next.executeAll();}
+    }
 }
