@@ -71,3 +71,34 @@ class testUnterrichtBeispiel{
         System.out.println(punto2.x + " ; " + punto2.y);    //Punto 2 = 110 , 120
     }
 }
+//--------------------------------------------------Gleichheit Repaso---------------------------------------------------
+class NumberCompare{
+    public static void main(String[] args) {
+        X x1 = new X(5);
+        X x2 = new X(5);
+        X x3 = x1;
+        X x31 = x3;
+        X x4 = new X(x1.x);
+
+        double d1 = Math.sqrt(5.0)*Math.sqrt(5.0);
+        double d2 = 5.0;
+        double d3 = 10.0-5.0;
+
+        System.out.println(x31 == x1);              //true
+        System.out.println(x31.equals(x1));         //true
+        System.out.println(x1 == x2);               //ObjektGleichheit geprüft (false)
+        System.out.println(x1.equals(x2));          //ObjektGleichheit geprüft, weil equals nicht überschrieben wurde (false)
+        System.out.println(x1 == x3);               //true
+        System.out.println(x1.equals(x3));          //true
+        System.out.println(x1 == x4);               //false
+
+        System.out.println(d1 == d2);               //false
+        System.out.println(d2 == d3);               //true
+    }
+}
+class X{
+    int x;
+    public X(int x){
+        this.x = x;
+    }
+}
