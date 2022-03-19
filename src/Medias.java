@@ -95,3 +95,19 @@ class FromData{
         //our creators, let the planet Earth alone, cause I'm coming for you...￿
     }
 }
+class FromDataDataInPutStream{
+    public static void main(String[] args) throws FileNotFoundException, IOException {
+        String message = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\ForStreams.txt";
+        FileInputStream file = new FileInputStream(message);
+        DataInputStream data = new DataInputStream(file);
+        char x;
+        for (int i = 0; i < file.available()/2; ++i) {
+            x = data.readChar();
+            System.out.print(x);
+        }
+        System.out.println("\n");
+        //liefert: 周敲攠慲攠浹獴敲楥猠瑯⁴桥⁵湩癥牳攠睥⁷敲攠湥癥爠浥湴⁴漠獯汶攬ഊ扵琠睨漠睥⁡牥Ⱐ慮搠睨礠睥⁡牥⁨敲攠慲攠湯琠
+        // 慭潮朠瑨敭ഊ瑨潳攠慮獷敲     XD readChar() liest nicht ein Latin-1-Zeichen, sondern die 16-Bit representation
+        // eines Unicode-Zeichen.
+    }
+}
