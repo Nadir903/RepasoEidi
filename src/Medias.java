@@ -78,3 +78,20 @@ class SocketFromPGDP{
         System.out.println(httpRequest.send(443));
     }
 }
+//------------------------------------------------Eingabe und Ausgabe---------------------------------------------------
+class FromData{
+    public static void main(String[] args) throws FileNotFoundException, IOException{
+        String message = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\ForStreams.txt";
+        FileInputStream file = new FileInputStream(message);
+        int t = 0;
+        while (t != -1){
+            t = file.read();
+            System.out.print((char)t);        //ohne char casting werde nur Zahlen geliefert
+        }
+        System.out.println("\n");
+        //liefert : There are mysteries to the universe we were never ment to solve,
+        //but who we are, and why we are here are not among them
+        //those answers carry we in us. I am Optimus Prime, and I send this message to
+        //our creators, let the planet Earth alone, cause I'm coming for you...￿
+    }
+}
