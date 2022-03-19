@@ -1,10 +1,8 @@
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 //------------------------------------------First Example (One Way)-----------------------------------------------------
 class Server{
@@ -38,7 +36,121 @@ class Client {
         }
     }
 }
+//--------------------------------------------------Eidi-Beispiele------------------------------------------------------
+class SocketEidi{
+    public static void main(String[] args) throws IOException{
+        Socket socket = new Socket("localhost",9999);
+        PrintWriter out = new PrintWriter(socket.getOutputStream());
+        out.print("hola mundo");
+        out.flush();
+        out.close();
+        socket.close();
+    }
+}
+class ServerEidi{
+    public static void main(String[] args) {
+        try{
+            ServerSocket server = new ServerSocket(9999);
+            Socket socket = server.accept();
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            while(!in.ready()){ /*ready(liefert true, sofern ein Zeichen gelesen werden kann*/}
+            String incoming = in.readLine();
+            in.close();
+            socket.close();
+            server.close();
+            System.out.println(incoming);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+}
+//Bidirektionale Communication
+class NetworkServer{
+    private final ServerSocket server;
+    NetworkServer() throws IOException{
+        this.server = new ServerSocket(1234);
+    }
+    private void connectAndTalk(){
+        Socket socket = null;
+        try{
+            socket = server.accept();
+            comunicate(socket);
+        }catch(IOException | InterruptedException e){
+            e.printStackTrace();
+        } finally {
+            if(socket!= null){
+                try{
+                    socket.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    private void comunicate(Socket socket) throws IOException, InterruptedException{
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter out = new PrintWriter(socket.getOutputStream());
+        String s;
+        do{
+            s = in.readLine();
+            System.out.println("server received: " + s);
+            if(s.equals("Es begab sich zu der Zeit")){
+                TimeUnit.SECONDS.sleep(4);
+                out.println("dass ein Gebot ausging vom Kaiser Augustus");
+            }else if(s.equals("dass alle Welt geschätzt würde")) {
+                TimeUnit.SECONDS.sleep(3);
+                out.println("das machte sich auch auf Joseph aus der Stadt Nazareth");
+            }else if(s.equals("in das jüdische Land zur Stadt Davids")) {
+                TimeUnit.SECONDS.sleep(3);
+                out.println("die da heißt Bethlehem");
+            }
+        }while (!s.equals("Ende"));
+    }
 
+    public static void main(String[] args) {
+        class NetworkClient{
+            public static void main(String[] args) {
+                Socket socket = null;
+                try{
+                    socket = new Socket("localhost",1234);
+                    OutputStream out = socket.getOutputStream();
+                    PrintStream ps = new PrintStream(out,true);
+                    InputStream in = socket.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                    ps.println("Es begab sich aber zu der Zeit,");
+                    System.out.println("client sent: Es begab sich aber zu der Zeit,");
+                    System.out.println("client received: "+reader.readLine());
+                    ps.println("dass alle Welt geschaetzet wuerde.");
+                    System.out.println("client sent: dass alle Welt geschaetzet wuerde.");
+
+                    System.out.println("client received: "+reader.readLine());
+                    ps.println("in das juedische Land zur Stadt Davids,");
+                    System.out.println("client sent: in das juedische Land zur Stadt Davids,");
+
+                    System.out.println("client received: "+reader.readLine());
+                    ps.println("ENDE");
+                    System.out.println("client sent: ENDE");
+                }catch(IOException e){
+                    e.printStackTrace();
+                }finally {
+                    if(socket != null){
+                        try {
+                            socket.close();
+                            System.out.println("Alles beendet");
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+
+//----------------------------------------------------Eidi-Ende---------------------------------------------------------
 class SocketFromPGDP{
     private String host;
     private String path;
