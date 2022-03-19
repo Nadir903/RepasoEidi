@@ -111,3 +111,18 @@ class FromDataDataInPutStream{
         // eines Unicode-Zeichen.
     }
 }
+class CopiarXD{
+    public static void main(String[] args) throws FileNotFoundException, IOException {
+        String message = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\ForStreams.txt";
+        String destiny = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\ForStreamsOutput.txt";
+        FileInputStream file = new FileInputStream(message);
+        FileOutputStream copy = new FileOutputStream(destiny);
+        int t = 0;
+        while(t != -1){
+            t = file.read();
+            copy.write(t);
+        }
+        file.close();
+        copy.close();
+    }
+}
