@@ -79,6 +79,7 @@ class SocketFromPGDP{
     }
 }
 //------------------------------------------------Eingabe und Ausgabe---------------------------------------------------
+//For Bytes
 class FromData{
     public static void main(String[] args) throws FileNotFoundException, IOException{
         String message = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\ForStreams.txt";
@@ -124,5 +125,21 @@ class CopiarXD{
         }
         file.close();
         copy.close();
+    }
+}
+//For Zeichen
+class CountLines{
+    public static void main(String[] args){
+        try{
+            String Path = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\ForStreams.txt";
+            FileReader file = new FileReader(Path);
+            BufferedReader reader = new BufferedReader(file);
+            int i = 0;
+            while(reader.readLine()!= null){ i ++;}
+            reader.close();
+            System.out.println("Number of Lines ist: " + i );
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
