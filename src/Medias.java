@@ -143,3 +143,42 @@ class CountLines{
         }
     }
 }
+class CopyWithZeichen{
+    public static void main(String[] args) {
+        try{
+            String Path = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\StreamText.txt";
+            String destiny = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\StreamTextCopied.txt";
+            BufferedReader reader = new BufferedReader(new FileReader(Path));
+            PrintWriter writer = new PrintWriter(new FileWriter(destiny));
+            StringBuilder message = new StringBuilder();
+            String line = "";
+            while (line != null){
+                line = reader.readLine();
+                message.append(line).append("\n");
+            }
+            writer.write(message.toString());
+            writer.flush();
+            writer.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+    }
+}
+class SameLikeBeforeButFromTheClass{
+    public static void main(String[] args) {
+        try{
+            String Path = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\StreamText.txt";
+            String destiny = "C:\\Users\\nadir\\OneDrive\\Documentos\\Informatica\\Semestre1\\Eidi\\StreamTextCopied.txt";
+            FileReader in = new FileReader(Path);
+            FileWriter out = new FileWriter(destiny);
+            for (int i = in.read(); i != -1 ; i = in.read()) {
+                out.write(i);
+            }
+            in.close();
+            out.close();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+}
