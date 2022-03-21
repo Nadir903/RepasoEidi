@@ -11,8 +11,8 @@ class Sincronizado{
         HilosVariosSincronizados hilo7 = new HilosVariosSincronizados(hilo6);
         HilosVariosSincronizados hilo8 = new HilosVariosSincronizados(hilo7);
         HilosVariosSincronizados hilo9 = new HilosVariosSincronizados(hilo8);
-        HilosVariosSincronizados[] hilos = {hilo1, hilo2, hilo3, hilo4, hilo5, hilo6, hilo7, hilo8, hilo9}; //hilos sincronizados entre sí
-        for (HilosVariosSincronizados hilo : hilos) {
+        HilosVariosSincronizados[] hilos = {hilo1, hilo2, hilo3, hilo4, hilo5, hilo6, hilo7, hilo8, hilo9};
+        for (HilosVariosSincronizados hilo : hilos) {                           //hilos sincronizados entre sí
             hilo.start();
         }
         hilo0.start();
