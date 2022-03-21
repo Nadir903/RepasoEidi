@@ -42,3 +42,68 @@ class HilosVariosSincronizados extends Thread {
         }
     }
 }
+
+//--------------------------------------------------------Banco---------------------------------------------------------
+//------------------------------------------Saldo total debe ser 200.000 euros------------------------------------------
+//---------------------------------------------Solo hay 100 cuentas de banco--------------------------------------------
+class BancoDesincronizado{
+    public static void main(String[] args) throws InterruptedException {
+        Banco banco = new Banco();
+        for (int i = 0; i < 100; i++) {
+            EjecuciónDeTransferencias runnable = new EjecuciónDeTransferencias(banco,i,2000);
+            Thread thread = new Thread(runnable);
+            thread.start();
+        }
+    }
+}
+class Banco{
+    private final double[] cuentas;
+    public Banco(){
+        cuentas = new double[100];
+        for (int i = 0; i < cuentas.length; i++) {
+            cuentas[i] = 2000;
+        }
+    }
+    public void transferir(int cuentaOrigen, int cuentaDestino, double cantidad){
+        if(cantidad > cuentas[cuentaOrigen]) {
+            //System.out.printf("¡Saldo insuficiente!: monto -> %10.2f || saldo actual -> %d \n",cantidad,cuentaOrigen);
+            return;
+        }
+        System.out.print(Thread.currentThread() + " -> ");
+        cuentas[cuentaOrigen] -= cantidad;
+        System.out.printf("%10.2f de cuenta %d para cuenta %d \t",cantidad,cuentaOrigen,cuentaDestino);
+        cuentas[cuentaDestino] += cantidad;
+        System.out.printf("||   Saldo total del banco: %10.2f%n", getSaldoDelBanco());
+    }
+    public double getSaldoDelBanco(){
+        double sumaTotal = 0;
+        for (double saldo: cuentas) {
+            sumaTotal += saldo;
+        }
+        return sumaTotal;
+    }
+}
+class EjecuciónDeTransferencias implements Runnable{
+    private Banco banco;
+    private int idOrigen;
+    private double cantidadMaxima;
+    public EjecuciónDeTransferencias(Banco banco, int idOrigen, double cantidadMaxima){
+        this.banco = banco;
+        this.idOrigen = idOrigen;
+        this.cantidadMaxima = cantidadMaxima;
+    }
+    @Override
+    public void run() {
+        while (true){   //crear bucle infinito
+            int idDestino = (int)(Math.random()*100);
+            double cantidad = cantidadMaxima*Math.random();
+            banco.transferir(idOrigen,idDestino,cantidad);
+            try{
+                Thread.sleep((int)(Math.random()*10));
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+
+    }
+}
