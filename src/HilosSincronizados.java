@@ -71,13 +71,16 @@ class Banco{
         }
         conditionDeSaldoSuficiente = lineaDeCódigo.newCondition();
     }
-    public void transferir(int cuentaOrigen, int cuentaDestino, double cantidad){
+    public void transferir(int cuentaOrigen, int cuentaDestino, double cantidad) throws InterruptedException{
         lineaDeCódigo.lock();
         try{
-            if(cantidad > cuentas[cuentaOrigen]) {
-                System.out.printf("¡SALDO INSUFICIENTE!: monto -> %10.2f || cuenta %d con saldo actual -> %10.2f ",cantidad,cuentaOrigen,cuentas[cuentaOrigen]);
-                System.out.print(Thread.currentThread().getName() +" perdido \n");
-                return;         //el Thread actual se pierde y desaparece xdn't
+            while (cantidad > cuentas[cuentaOrigen]) {
+                //para que el hilo no se pierda, se le pone a la espera con await()
+                System.out.println("¡SALDO INSUFICIENTE! -> " + Thread.currentThread().getName() +
+                        " quiere transferir de cuenta " + cuentaOrigen + " a cuenta " + cuentaDestino + "\n la cantidad "+
+                        cantidad + " pero solo posee " + cuentas[cuentaOrigen] + " || procede a esperar...");
+                conditionDeSaldoSuficiente.await();
+                //ya no hay hilos que mueren y todos tarde o temprano realizan la transferencia
             }
             System.out.print("Transferencia aceptada -> Procediendo a transferir... : ");
             System.out.print(Thread.currentThread().getName() + "   -> ");
@@ -85,6 +88,7 @@ class Banco{
             System.out.printf("%10.2f de cuenta %d para cuenta %d \t",cantidad,cuentaOrigen,cuentaDestino);
             cuentas[cuentaDestino] += cantidad;
             System.out.printf("||   Saldo total del banco: %10.2f%n", getSaldoDelBanco());
+            conditionDeSaldoSuficiente.signalAll();                         //avisa a todos los hilos que hubo un cambio
         }finally {
             lineaDeCódigo.unlock();
         }
@@ -111,8 +115,8 @@ class EjecuciónDeTransferencias implements Runnable{
         while (true){   //crear bucle infinito
             int idDestino = (int)(Math.random()*100);
             double cantidad = cantidadMaxima*Math.random();
-            banco.transferir(idOrigen,idDestino,cantidad);
             try{
+                banco.transferir(idOrigen,idDestino,cantidad);
                 Thread.sleep((int)(Math.random()*100));
             }catch (InterruptedException e){
                 e.printStackTrace();
