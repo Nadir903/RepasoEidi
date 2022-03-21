@@ -29,12 +29,13 @@ class PelotaHilos implements Runnable{
         for (int i=1; ! Thread.currentThread().isInterrupted() ; i++){              //i<=3000      Thread.interrupted()
             pelota.mueve_pelota(componente.getBounds());
             componente.paint(componente.getGraphics());
-            /*try {
+            try {
                 Thread.sleep(4);
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                System.out.println("Hilo bloqueado, imposible su interrupción XD");
-            }*/
+                //e.printStackTrace();
+                //System.out.println("Hilo bloqueado, imposible su interrupción XD");
+                Thread.currentThread().interrupt();
+            }
         }
         System.out.println("hilo interrumpido : " + Thread.interrupted());          //despues de interrumpir() es true
     }
@@ -90,34 +91,45 @@ class LaminaPelota extends JPanel{
 }
 //Marco con lámina y botones--------------------------------------------------------------------------------------------
 class MarcoRebote extends JFrame{
+    private Thread thread1, thread2, thread3;
+    JButton arranca1, arranca2, arranca3, detener1, detener2, detener3;
     public MarcoRebote(){
-        setBounds(600,300,400,350);
+        setBounds(600,300,700,350);
         setTitle ("Rebotes");
         lamina=new LaminaPelota();
         add(lamina, BorderLayout.CENTER);
         JPanel laminaBotones=new JPanel();
-        ponerBoton(laminaBotones, "Dale!", new ActionListener(){
-            public void actionPerformed(ActionEvent evento){
-                comienza_el_juego();
-            }
-        });
-        ponerBoton(laminaBotones, "Salir", new ActionListener(){
-            public void actionPerformed(ActionEvent evento){
-                System.exit(0);
-            }
-        });
-        ponerBoton(laminaBotones,"Detener",e -> detener());
+
+        arranca1 = new JButton("hilo 1");
+        arranca1.addActionListener(e -> comienza_el_juego(e));
+        laminaBotones.add(arranca1);
+
+        arranca2 = new JButton("hilo 2");
+        arranca2.addActionListener(e -> comienza_el_juego(e));
+        laminaBotones.add(arranca2);
+
+        arranca3 = new JButton("hilo 3");
+        arranca3.addActionListener(this::comienza_el_juego);
+        laminaBotones.add(arranca3);
+
+        detener1 = new JButton("detener hilo 1");
+        detener1.addActionListener(e -> detener(e));
+        laminaBotones.add(detener1);
+
+        detener2 = new JButton("detener hilo 2");
+        detener2.addActionListener(e -> detener(e));
+        laminaBotones.add(detener2);
+
+        detener3 = new JButton("detener hilo 3");
+        detener3.addActionListener(this::detener);
+        laminaBotones.add(detener3);
+
         add(laminaBotones, BorderLayout.SOUTH);
     }
-    //Ponemos botones
-    public void ponerBoton(Container c, String titulo, ActionListener oyente){
-        JButton boton=new JButton(titulo);
-        c.add(boton);
-        boton.addActionListener(oyente);
-    }
+
     //Añade pelota y la bota 1000 veces
-    private Thread thread;
-    public void comienza_el_juego (){
+
+    public void comienza_el_juego (ActionEvent e){
         Pelota pelota=new Pelota();
         lamina.add(pelota);
         /*for (int i=1; i<=3000; i++){
@@ -131,13 +143,28 @@ class MarcoRebote extends JFrame{
         }*/
         Runnable runnable = new PelotaHilos(pelota,lamina);
         //runnable.run();           ---> si solo se implementa asi, NO sera multitarea
-        thread = new Thread(runnable);
-        thread.start();
+
+        if(e.getSource().equals(arranca1)){
+            thread1 = new Thread(runnable);
+            thread1.start();
+        }else if (e.getSource().equals(arranca2)) {
+            thread2 = new Thread(runnable);
+            thread2.start();
+        }else if (e.getSource().equals(arranca3)) {
+            thread3 = new Thread(runnable);
+            thread3.start();
+        }
+
     }
     //para detener o interrumpir
-    public void detener(){
-        //thread.stop();
-        thread.interrupt();     //lanza interrupted exception debido a método sleep() ejecutado
+    public void detener(ActionEvent e){
+        if(e.getSource().equals(detener1)){
+            thread1.interrupt();
+        }else if (e.getSource().equals(detener2)) {
+            thread2.interrupt();
+        }else if (e.getSource().equals(detener3)) {
+            thread3.interrupt();
+        }
     }
     private LaminaPelota lamina;
 }
