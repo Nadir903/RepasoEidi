@@ -1,3 +1,6 @@
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 //Sincronizar es que un hilo empiece cuando recién termine el anterior
 class Sincronizado{
     public static void main(String[] args) {
@@ -53,11 +56,15 @@ class BancoDesincronizado{
             EjecuciónDeTransferencias runnable = new EjecuciónDeTransferencias(banco,i,2000);
             Thread thread = new Thread(runnable);
             thread.start();
+            //thread.join();        si el bucle infinito de run() se reduce a i<10 por ejemplo, todos los Threads
+            //                      correrían en orden, del 0 al 99. En caso de que siga infinito, se queda en la
+            //                      cuenta 0, se drenara su saldo completamente y no podrá comenzar el segundo Thread.
         }
     }
 }
 class Banco{
     private final double[] cuentas;
+    private Lock lineaDeCódigo = new ReentrantLock();
     public Banco(){
         cuentas = new double[100];
         for (int i = 0; i < cuentas.length; i++) {
@@ -65,15 +72,21 @@ class Banco{
         }
     }
     public void transferir(int cuentaOrigen, int cuentaDestino, double cantidad){
-        if(cantidad > cuentas[cuentaOrigen]) {
-            //System.out.printf("¡Saldo insuficiente!: monto -> %10.2f || saldo actual -> %d \n",cantidad,cuentaOrigen);
-            return;
+        lineaDeCódigo.lock();
+        try{
+            if(cantidad > cuentas[cuentaOrigen]) {
+                //System.out.printf("¡Saldo insuficiente!: monto -> %10.2f || saldo actual -> %d \n",cantidad,cuentaOrigen);
+                return;
+            }
+            System.out.print(Thread.currentThread() + " -> ");
+            cuentas[cuentaOrigen] -= cantidad;
+            System.out.printf("%10.2f de cuenta %d para cuenta %d \t",cantidad,cuentaOrigen,cuentaDestino);
+            cuentas[cuentaDestino] += cantidad;
+            System.out.printf("||   Saldo total del banco: %10.2f%n", getSaldoDelBanco());
+        }finally {
+            lineaDeCódigo.unlock();
         }
-        System.out.print(Thread.currentThread() + " -> ");
-        cuentas[cuentaOrigen] -= cantidad;
-        System.out.printf("%10.2f de cuenta %d para cuenta %d \t",cantidad,cuentaOrigen,cuentaDestino);
-        cuentas[cuentaDestino] += cantidad;
-        System.out.printf("||   Saldo total del banco: %10.2f%n", getSaldoDelBanco());
+
     }
     public double getSaldoDelBanco(){
         double sumaTotal = 0;
@@ -94,12 +107,15 @@ class EjecuciónDeTransferencias implements Runnable{
     }
     @Override
     public void run() {
+        //un segundo hilo de ejecución puede empezar antes de que el actual termine y allí es donde se pierde la
+        //cantidad total, para evitar ello se debe usar un Lock();
+        //>>>mirar método transferir en clase Banco<<<
         while (true){   //crear bucle infinito
             int idDestino = (int)(Math.random()*100);
             double cantidad = cantidadMaxima*Math.random();
             banco.transferir(idOrigen,idDestino,cantidad);
             try{
-                Thread.sleep((int)(Math.random()*10));
+                Thread.sleep((int)(Math.random()*100));
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
