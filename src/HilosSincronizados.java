@@ -1,3 +1,4 @@
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -56,29 +57,30 @@ class BancoDesincronizado{
             EjecuciónDeTransferencias runnable = new EjecuciónDeTransferencias(banco,i,2000);
             Thread thread = new Thread(runnable);
             thread.start();
-            //thread.join();        si el bucle infinito de run() se reduce a i<10 por ejemplo, todos los Threads
-            //                      correrían en orden, del 0 al 99. En caso de que siga infinito, se queda en la
-            //                      cuenta 0, se drenara su saldo completamente y no podrá comenzar el segundo Thread.
         }
     }
 }
 class Banco{
     private final double[] cuentas;
     private Lock lineaDeCódigo = new ReentrantLock();
+    private Condition conditionDeSaldoSuficiente;
     public Banco(){
         cuentas = new double[100];
         for (int i = 0; i < cuentas.length; i++) {
             cuentas[i] = 2000;
         }
+        conditionDeSaldoSuficiente = lineaDeCódigo.newCondition();
     }
     public void transferir(int cuentaOrigen, int cuentaDestino, double cantidad){
         lineaDeCódigo.lock();
         try{
             if(cantidad > cuentas[cuentaOrigen]) {
-                //System.out.printf("¡Saldo insuficiente!: monto -> %10.2f || saldo actual -> %d \n",cantidad,cuentaOrigen);
-                return;
+                System.out.printf("¡SALDO INSUFICIENTE!: monto -> %10.2f || cuenta %d con saldo actual -> %10.2f ",cantidad,cuentaOrigen,cuentas[cuentaOrigen]);
+                System.out.print(Thread.currentThread().getName() +" perdido \n");
+                return;         //el Thread actual se pierde y desaparece xdn't
             }
-            System.out.print(Thread.currentThread() + " -> ");
+            System.out.print("Transferencia aceptada -> Procediendo a transferir... : ");
+            System.out.print(Thread.currentThread().getName() + "   -> ");
             cuentas[cuentaOrigen] -= cantidad;
             System.out.printf("%10.2f de cuenta %d para cuenta %d \t",cantidad,cuentaOrigen,cuentaDestino);
             cuentas[cuentaDestino] += cantidad;
@@ -86,7 +88,6 @@ class Banco{
         }finally {
             lineaDeCódigo.unlock();
         }
-
     }
     public double getSaldoDelBanco(){
         double sumaTotal = 0;
@@ -107,9 +108,6 @@ class EjecuciónDeTransferencias implements Runnable{
     }
     @Override
     public void run() {
-        //un segundo hilo de ejecución puede empezar antes de que el actual termine y allí es donde se pierde la
-        //cantidad total, para evitar ello se debe usar un Lock();
-        //>>>mirar método transferir en clase Banco<<<
         while (true){   //crear bucle infinito
             int idDestino = (int)(Math.random()*100);
             double cantidad = cantidadMaxima*Math.random();
