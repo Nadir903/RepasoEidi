@@ -25,15 +25,18 @@ class PelotaHilos implements Runnable{
     }
     @Override
     public void run() {
-        for (int i=1; i<=3000; i++){
+        System.out.println("hilo interrumpido : " + Thread.interrupted());          //antes de dale() es falso
+        for (int i=1; ! Thread.currentThread().isInterrupted() ; i++){              //i<=3000      Thread.interrupted()
             pelota.mueve_pelota(componente.getBounds());
             componente.paint(componente.getGraphics());
-            try {
+            /*try {
                 Thread.sleep(4);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+                System.out.println("Hilo bloqueado, imposible su interrupción XD");
+            }*/
         }
+        System.out.println("hilo interrumpido : " + Thread.interrupted());          //despues de interrumpir() es true
     }
 }
 //Movimiento de la pelota-----------------------------------------------------------------------------------------------
@@ -103,6 +106,7 @@ class MarcoRebote extends JFrame{
                 System.exit(0);
             }
         });
+        ponerBoton(laminaBotones,"Detener",e -> detener());
         add(laminaBotones, BorderLayout.SOUTH);
     }
     //Ponemos botones
@@ -112,6 +116,7 @@ class MarcoRebote extends JFrame{
         boton.addActionListener(oyente);
     }
     //Añade pelota y la bota 1000 veces
+    private Thread thread;
     public void comienza_el_juego (){
         Pelota pelota=new Pelota();
         lamina.add(pelota);
@@ -126,8 +131,13 @@ class MarcoRebote extends JFrame{
         }*/
         Runnable runnable = new PelotaHilos(pelota,lamina);
         //runnable.run();           ---> si solo se implementa asi, NO sera multitarea
-        Thread thread = new Thread(runnable);
+        thread = new Thread(runnable);
         thread.start();
+    }
+    //para detener o interrumpir
+    public void detener(){
+        //thread.stop();
+        thread.interrupt();     //lanza interrupted exception debido a método sleep() ejecutado
     }
     private LaminaPelota lamina;
 }
