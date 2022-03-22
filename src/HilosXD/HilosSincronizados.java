@@ -1,6 +1,4 @@
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+package HilosXD;
 
 //Sincronizar es que un hilo empiece cuando recién termine el anterior
 class Sincronizado{
@@ -47,7 +45,7 @@ class HilosVariosSincronizados extends Thread {
     }
 }
 
-//--------------------------------------------------------Banco---------------------------------------------------------
+//--------------------------------------------------------HilosXD.Banco---------------------------------------------------------
 //------------------------------------------Saldo total debe ser 200.000 euros------------------------------------------
 //---------------------------------------------Solo hay 100 cuentas de banco--------------------------------------------
 class BancoDesincronizado{
